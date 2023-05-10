@@ -27,6 +27,35 @@ const userController = {
       return res.status(500).json({ error: err });
     }
   },
+  searchTutor: async (req, res) => {
+    try {
+      const { subject, city } = req.query;
+      console.log("subject city", subject, city);
+      const filter = {};
+      if (subject) {
+        filter["tutorForm.subjects"] = { $regex: `${subject}`, $options: "i" };
+        filter.role = "tutor";
+      }
+      if (city) {
+        filter["tutorForm.city"] = { $regex: `${city}`, $options: "i" };
+        filter.role = "tutor";
+      }
+      if (subject && city) {
+        filter["tutorForm.subjects"] = { $regex: `${subject}`, $options: "i" };
+        filter["tutorForm.city"] = { $regex: `${city}`, $options: "i" };
+        filter.role = "tutor";
+      }
+      const searchedUser = await User.find(filter).catch((err) => {
+        res.status(500).json({ error: err, message: "Search error" });
+      });
+      console.log(searchedUser, "user");
+      if (searchedUser.length > 0) {
+        res.status(200).json({ searchedUser });
+      } else res.json({ error: "No data related to search option" });
+    } catch (err) {
+      console.log(err);
+    }
+  },
 };
 
 module.exports = userController;

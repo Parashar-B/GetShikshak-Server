@@ -11,6 +11,8 @@ const router = express.Router();
 router.get("/gettutors", userController.getTutors);
 router.get("/getstudents", userController.getStudents);
 
+router.get("/search", userController.searchTutor);
+
 router.post("/test", verifyToken, (req, res) => {
   try {
     console.log("Hit url success");
