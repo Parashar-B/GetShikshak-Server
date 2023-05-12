@@ -1,18 +1,5 @@
 const mongoose = require("mongoose");
 
-const MyClasse = new mongoose.Schema({
-  subject: {
-    type: mongoose.SchemaTypes.String,
-  },
-  teacher_id: {
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: "User",
-  },
-  mode: {
-    type: mongoose.SchemaTypes.String,
-  },
-});
-
 const UserSchema = new mongoose.Schema(
   {
     email: { type: String, require: true },
@@ -33,18 +20,6 @@ const UserSchema = new mongoose.Schema(
       lastEducationalCertificate: { type: String },
     },
     profilePic: { type: String },
-    myClasses: {
-      type: [MyClasse],
-      default: [],
-    },
-    classes: {
-      type: [],
-      default: [],
-    },
-
-    rating: {
-      type: mongoose.SchemaTypes.Number,
-    },
   },
   { timestamps: true }
 );
