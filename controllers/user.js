@@ -7,7 +7,7 @@ const userController = {
       });
       if (tutors.length > 0) {
         console.log(tutors);
-        return res.json({ message: "Inside get tutors", tutors });
+        return res.json({ message: "Tutors found", tutors });
       } else return res.json({ message: "No tutors Found" });
     } catch (err) {
       return res.status(500).json({ error: err });

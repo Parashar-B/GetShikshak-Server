@@ -77,6 +77,13 @@ const authController = {
   },
   tutorRegister: async (req, res) => {
     try {
+      console.log("req.body", req.body);
+      console.log("req.files", req.files);
+      console.log(
+        "req.files.profilePic.originalname",
+        req.files.profilePic[0].originalname
+      );
+
       const {
         subjects,
         title,
@@ -88,6 +95,7 @@ const authController = {
         phone,
         role,
         rate,
+        isProfileVerified,
       } = req.body;
       const loggedInUserId = req.user.id;
       const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
@@ -95,6 +103,14 @@ const authController = {
       });
       if (!user) return res.status(404).json({ error: "User not found" });
 
+      // console.log(
+      //   "ProfilePic",
+      //   rate,
+      //   role,
+      //   profilePic,
+      //   identity,
+      //   lastEducationalCertificate
+      // );
       user.role = role;
       user.tutorForm.subjects = subjects;
       user.tutorForm.title = title;
@@ -105,6 +121,10 @@ const authController = {
       user.tutorForm.language = language;
       user.tutorForm.rate = rate;
       user.tutorForm.phone = phone;
+      user.profilePic = req.files.profilePic[0].filename;
+      user.tutorForm.identity = req.files.identity[0].filename;
+      user.tutorForm.lastEducationalCertificate =
+        req.files.lastEducationalCertificate[0].filename;
 
       const savedUser = await user.save().catch((err) => {
         console.log("Cannot update user at this moment", err);
@@ -124,3 +144,24 @@ const authController = {
 };
 
 module.exports = authController;
+
+// {
+//   email:'seema1@gmail.com',
+//   role: 'tutor',
+//   subjects: ['Hindi'],
+//   title: "titile",
+//   aboutYou: "",
+//   aboutClass: "somsdsd",
+//   city:' Assam',
+//   mode: [
+//     'Online'
+//   ],
+//   language:[
+//     "English"
+//   ],
+//   rate:200,
+//   phone: '9365636140',
+//   profilePic: {},
+//   identity: {},
+//   lastEducationalCertificate: {},
+//   isProfileVerified:
