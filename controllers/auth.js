@@ -6,8 +6,8 @@ const User = require("../models/Users");
 const authController = {
   register: async (req, res) => {
     try {
-      const { email, password, confirmPassword, role } = req.body;
-      if (!email || !password || !confirmPassword || !role) {
+      const { email, password, confirmPassword, role, name } = req.body;
+      if (!email || !password || !confirmPassword || !role || !name) {
         return res.status(500).json({ error: "All fields are compulsory !!" });
       }
 
@@ -29,6 +29,7 @@ const authController = {
         email,
         password: hashedPassword,
         role: role,
+        name,
       });
       const savedUser = await newUser.save().catch((err) => {
         console.log("Cannot register user at this moment", err);
@@ -93,9 +94,8 @@ const authController = {
         language,
         mode,
         phone,
-        role,
         rate,
-        isProfileVerified,
+        isProfileCompleted,
       } = req.body;
       const loggedInUserId = req.user.id;
       const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
@@ -111,7 +111,6 @@ const authController = {
       //   identity,
       //   lastEducationalCertificate
       // );
-      user.role = role;
       user.tutorForm.subjects = subjects;
       user.tutorForm.title = title;
       user.tutorForm.aboutClass = aboutClass;
@@ -121,6 +120,7 @@ const authController = {
       user.tutorForm.language = language;
       user.tutorForm.rate = rate;
       user.tutorForm.phone = phone;
+      user.tutorForm.isProfileCompleted = isProfileCompleted;
       user.profilePic = req.files.profilePic[0].filename;
       user.tutorForm.identity = req.files.identity[0].filename;
       user.tutorForm.lastEducationalCertificate =

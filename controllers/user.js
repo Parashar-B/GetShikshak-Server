@@ -6,8 +6,12 @@ const userController = {
         return res.json({ error: "Cannot complete the request" });
       });
       if (tutors.length > 0) {
-        console.log(tutors);
-        return res.json({ message: "Tutors found", tutors });
+        // console.log(tutors);
+        const filteredTutors = tutors.filter((tutor) => {
+          return tutor.tutorForm.isProfileCompleted === true;
+        });
+        console.log("filtered", filteredTutors);
+        return res.json({ message: "Tutors found", filteredTutors });
       } else return res.json({ message: "No tutors Found" });
     } catch (err) {
       return res.status(500).json({ error: err });
@@ -54,6 +58,22 @@ const userController = {
       } else res.json({ error: "No data related to search option" });
     } catch (err) {
       console.log(err);
+    }
+  },
+  getTutorDetails: async (req, res) => {
+    try {
+      const id = req.params.id;
+      // console.log(req.params);
+      const user = await User.findById(id).catch((err) => {
+        return res.status(500).json({ error: err });
+      });
+
+      if (user) {
+        console.log("user", user);
+        return res.status(200).json({ user });
+      }
+    } catch (err) {
+      console.log("errors", err);
     }
   },
 };
