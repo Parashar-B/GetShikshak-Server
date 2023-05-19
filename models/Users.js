@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const constants = require("../utils/constants");
+const roles = constants.roles;
 
 const StudentClassSchema = new mongoose.Schema({
   subject: {
@@ -31,8 +33,13 @@ const UserSchema = new mongoose.Schema(
     name: { type: String, require: true },
     email: { type: String, require: true },
     password: { type: String, require: true },
-    role: { type: String, enum: ["tutor", "student", "admin"] },
+    role: {
+      type: String,
+      enum: [roles.student, roles.tutor, roles.admin],
+    },
     address: { type: String },
+    age: { type: String },
+    gender: { type: String },
     tutorForm: {
       subjects: { type: Array },
       title: { type: String },
@@ -57,9 +64,8 @@ const UserSchema = new mongoose.Schema(
       type: [TeacherClassSchema],
       default: [],
     },
-    rating: {
-      type: mongoose.Schema.Types.Number,
-    },
+    rating: { type: mongoose.Schema.Types.Number },
+    isAccountActive: { type: String, default: true },
   },
   { timestamps: true }
 );

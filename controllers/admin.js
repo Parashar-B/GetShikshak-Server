@@ -13,7 +13,7 @@ const adminController = {
       );
 
       if (subjectExist) {
-        return res.status(500).json({ error: "Subject Already exist!" });
+        return res.status(409).json({ error: "Subject Already exist!" });
       }
 
       const newSubject = new Subject({
@@ -46,7 +46,7 @@ const adminController = {
       });
 
       if (modeExist) {
-        return res.status(500).json({ error: "Mode Already exist!" });
+        return res.status(409).json({ error: "Mode Already exist!" });
       }
       const newMode = new Mode({
         value: mode,
@@ -80,7 +80,7 @@ const adminController = {
       );
 
       if (languageExist) {
-        return res.status(500).json({ error: "Language Already exist!" });
+        return res.status(409).json({ error: "Language Already exist!" });
       }
 
       const newLanguage = new Language({
