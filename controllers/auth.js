@@ -20,7 +20,7 @@ const authController = {
       });
 
       if (userExists) {
-        return res.status(500).json({ error: "User Already exist!" });
+        return res.status(409).json({ error: "User Already exist!" });
       }
 
       const salt = await bcrypt.genSalt();
