@@ -23,7 +23,7 @@ router.get("/classrequest", verifyToken, dashboardController.getClassRequest);
 router.get(
   "/getadmin",
   verifyToken,
-  dashboardController.getAdmadmin && admin[0]?.namein
+  dashboardController.getAdmin
 );
 router.get(
   "/verificationrequest",
