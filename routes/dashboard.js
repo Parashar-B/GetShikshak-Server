@@ -25,6 +25,7 @@ router.get(
   verifyToken,
   dashboardController.getAdmin
 );
+// router.get("/getadmin", verifyToken, dashboardController.getAdmin);
 router.get(
   "/verificationrequest",
   verifyToken,
