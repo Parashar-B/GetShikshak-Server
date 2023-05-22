@@ -105,7 +105,7 @@ const dashboardController = {
         $and: [
           { role: "tutor" },
           { "tutorForm.isProfileVerified": false },
-          { "tutorForm.isProfileCompleted": true },
+          { isProfileCompleted: true },
         ],
       }).catch((err) => {
         res.status(500).json({ error: err });

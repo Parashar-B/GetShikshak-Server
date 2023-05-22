@@ -32,10 +32,16 @@ const docUpload = upload.fields([
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.post(
-  "/tutorRegister",
+  "/tutorcompleteprofile",
   verifyToken,
   docUpload,
   authController.tutorRegister
+);
+router.post(
+  "/studentcompleteprofile",
+  verifyToken,
+  upload.single("profilePic"),
+  authController.studentCompleteProfile
 );
 // router.get('/test',verifyToken,(req,res)=>{
 //     try{

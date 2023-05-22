@@ -102,15 +102,6 @@ const authController = {
         console.log("error", err);
       });
       if (!user) return res.status(404).json({ error: "User not found" });
-
-      // console.log(
-      //   "ProfilePic",
-      //   rate,
-      //   role,
-      //   profilePic,
-      //   identity,
-      //   lastEducationalCertificate
-      // );
       user.tutorForm.subjects = subjects;
       user.tutorForm.title = title;
       user.tutorForm.aboutClass = aboutClass;
@@ -120,7 +111,7 @@ const authController = {
       user.tutorForm.language = language;
       user.tutorForm.rate = rate;
       user.tutorForm.phone = phone;
-      user.tutorForm.isProfileCompleted = isProfileCompleted;
+      user.isProfileCompleted = isProfileCompleted;
       user.profilePic = req.files.profilePic[0].filename;
       user.tutorForm.identity = req.files.identity[0].filename;
       user.tutorForm.lastEducationalCertificate =
@@ -136,6 +127,39 @@ const authController = {
         res
           .status(201)
           .json({ message: "Tutor registration successful", savedUser, user });
+      }
+    } catch (err) {
+      console.log("err", err);
+    }
+  },
+  studentCompleteProfile: async (req, res) => {
+    try {
+      const { gender, age, education, address } = req.body;
+      console.log("req.body", req.body);
+      console.log("req.file", req.file);
+      const loggedInUserId = req.user.id;
+      console.log(loggedInUserId);
+      console.log(gender, age, education, address);
+
+      const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
+        console.log("error", err);
+      });
+      if (!user) return res.status(404).json({ error: "User not found" });
+      user.age = age;
+      user.gender = gender;
+      user.education = education;
+      user.address = address;
+      user.profilePic = req.file.filename;
+
+      const savedUser = await user.save().catch((err) => {
+        console.log("Cannot update user at this moment", err);
+        res.status(500).json({ error: "Cannot update user at this moment" });
+      });
+      if (savedUser) {
+        console.log("Student profile completed !!");
+        res
+          .status(201)
+          .json({ message: "Student profile completed", savedUser, user });
       }
     } catch (err) {
       console.log("err", err);

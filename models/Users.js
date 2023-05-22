@@ -51,21 +51,14 @@ const UserSchema = new mongoose.Schema(
       rate: { type: String },
       phone: { type: String },
       isProfileVerified: { type: Boolean, default: "false" },
-      isProfileCompleted: { type: Boolean, default: "false" },
       identity: { type: String },
       lastEducationalCertificate: { type: String },
     },
+    isProfileCompleted: { type: Boolean, default: "false" },
     profilePic: { type: String },
-    StudentClasses: {
-      type: [StudentClassSchema],
-      default: [],
-    },
-    TeachersClasses: {
-      type: [TeacherClassSchema],
-      default: [],
-    },
     rating: { type: mongoose.Schema.Types.Number },
     isAccountActive: { type: String, default: true },
+    education: { type: String },
   },
   { timestamps: true }
 );
