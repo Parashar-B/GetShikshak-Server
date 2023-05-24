@@ -54,7 +54,12 @@ const UserSchema = new mongoose.Schema(
       rate: { type: String },
       isProfileVerified: {
         type: String,
-        enum: [states.pending, states.accepted, states.rejected],
+        enum: [
+          states.pending,
+          states.accepted,
+          states.rejected,
+          states.reverted,
+        ],
         default: "pending",
       },
       identity: { type: String },
