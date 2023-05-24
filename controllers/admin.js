@@ -1,4 +1,5 @@
 const { Subject, Language, Mode } = require("../models/Advertise");
+const User = require('../models/Users');
 const adminController = {
   addSubject: async (req, res) => {
     // console.log(req.body);
@@ -101,6 +102,30 @@ const adminController = {
       }
     } catch (err) {
       res.status(500).json({ error: `${err.message}` });
+    }
+  },
+  getVerificationRequest:async (req,res) =>{
+    try {
+      const tutors = await User.find({
+        $and: [
+          { role: "tutor" },
+          { "tutorForm.isProfileVerified": "pending" },
+          { isProfileCompleted: "true" },
+        ],
+      }).catch((err) => {
+        res.status(500).json({ error: err });
+      });
+      if (!tutors) {
+        res.status(500).json({ message: "No such result found" });
+      }
+      if (tutors) {
+        res
+          .status(201)
+          .json({ tutors, message: "Tutors with verification request found" });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
     }
   },
 };

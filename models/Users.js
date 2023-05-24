@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const constants = require("../utils/constants");
 const roles = constants.roles;
+const states = constants.states;
 
 const StudentClassSchema = new mongoose.Schema({
   subject: {
@@ -50,7 +51,11 @@ const UserSchema = new mongoose.Schema(
       language: { type: Array },
       rate: { type: String },
       phone: { type: String },
-      isProfileVerified: { type: Boolean, default: "false" },
+      isProfileVerified: { 
+        type: String,
+        enum: [states.pending, states.accepted, states.rejected],
+        default: "pending" 
+      },
       identity: { type: String },
       lastEducationalCertificate: { type: String },
     },
