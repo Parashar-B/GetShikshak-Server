@@ -16,14 +16,14 @@ router.get("/:id", userController.getTutorDetails);
 
 router.post("/test", verifyToken, (req, res) => {
   try {
-    console.log("Hit url success");
+    // console.log("Hit url success");
 
-    console.log("user payload", req.user);
+    // console.log("user payload", req.user);
     res
       .status(201)
       .json({ message: "Data submitted successfully", user: req.user });
   } catch (err) {
-    console.log("Hit url error");
+    // console.log("Hit url error");
     res.status(500).json({ error: "Error from get login" });
   }
 });
