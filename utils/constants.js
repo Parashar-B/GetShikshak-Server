@@ -8,6 +8,7 @@ const constants = {
     accepted: "accepted",
     rejected: "rejected",
     pending: "pending",
+    reverted: "reverted",
   },
 };
 

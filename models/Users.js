@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const constants = require("../utils/constants");
 const roles = constants.roles;
+const states = constants.states;
 
 const StudentClassSchema = new mongoose.Schema({
   subject: {
@@ -36,10 +37,12 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: [roles.student, roles.tutor, roles.admin],
+      default: null,
     },
     address: { type: String },
     age: { type: String },
     gender: { type: String },
+    phone: { type: String },
     tutorForm: {
       subjects: { type: Array },
       title: { type: String },
@@ -49,15 +52,23 @@ const UserSchema = new mongoose.Schema(
       mode: { type: Array },
       language: { type: Array },
       rate: { type: String },
-      phone: { type: String },
-      isProfileVerified: { type: Boolean, default: "false" },
+      isProfileVerified: {
+        type: String,
+        enum: [
+          states.pending,
+          states.accepted,
+          states.rejected,
+          states.reverted,
+        ],
+        default: "pending",
+      },
       identity: { type: String },
       lastEducationalCertificate: { type: String },
     },
-    isProfileCompleted: { type: Boolean, default: "false" },
+    isProfileCompleted: { type: Boolean, default: false },
     profilePic: { type: String },
     rating: { type: mongoose.Schema.Types.Number },
-    isAccountActive: { type: String, default: true },
+    isAccountActive: { type: Boolean, default: true },
     education: { type: String },
   },
   { timestamps: true }
