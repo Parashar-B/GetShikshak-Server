@@ -11,6 +11,9 @@ const router = express.Router();
 router.get("/gettutors", userController.getTutors);
 router.get("/getstudents", userController.getStudents);
 
+router.get("/search", userController.searchTutor);
+router.get("/:id", userController.getTutorDetails);
+
 router.post("/test", verifyToken, (req, res) => {
   try {
     console.log("Hit url success");
@@ -25,4 +28,5 @@ router.post("/test", verifyToken, (req, res) => {
   }
 });
 
+router.post("/reserveclass/:id", verifyToken, userController.reserveClass);
 module.exports = router;

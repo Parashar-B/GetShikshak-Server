@@ -6,8 +6,8 @@ const User = require("../models/Users");
 const authController = {
   register: async (req, res) => {
     try {
-      const { email, password, confirmPassword, role } = req.body;
-      if (!email || !password || !confirmPassword || !role) {
+      const { email, password, confirmPassword, role, name } = req.body;
+      if (!email || !password || !confirmPassword || !role || !name) {
         return res.status(500).json({ error: "All fields are compulsory !!" });
       }
 
@@ -20,7 +20,7 @@ const authController = {
       });
 
       if (userExists) {
-        return res.status(500).json({ error: "User Already exist!" });
+        return res.status(409).json({ error: "User Already exist!" });
       }
 
       const salt = await bcrypt.genSalt();
@@ -29,6 +29,7 @@ const authController = {
         email,
         password: hashedPassword,
         role: role,
+        name,
       });
       const savedUser = await newUser.save().catch((err) => {
         console.log("Cannot register user at this moment", err);
@@ -77,6 +78,13 @@ const authController = {
   },
   tutorRegister: async (req, res) => {
     try {
+      console.log("req.body", req.body);
+      console.log("req.files", req.files);
+      console.log(
+        "req.files.profilePic.originalname",
+        req.files.profilePic[0].originalname
+      );
+
       const {
         subjects,
         title,
@@ -86,16 +94,14 @@ const authController = {
         language,
         mode,
         phone,
-        role,
         rate,
+        isProfileCompleted,
       } = req.body;
       const loggedInUserId = req.user.id;
       const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
         console.log("error", err);
       });
       if (!user) return res.status(404).json({ error: "User not found" });
-
-      user.role = role;
       user.tutorForm.subjects = subjects;
       user.tutorForm.title = title;
       user.tutorForm.aboutClass = aboutClass;
@@ -105,6 +111,11 @@ const authController = {
       user.tutorForm.language = language;
       user.tutorForm.rate = rate;
       user.tutorForm.phone = phone;
+      user.isProfileCompleted = isProfileCompleted;
+      user.profilePic = req.files.profilePic[0].filename;
+      user.tutorForm.identity = req.files.identity[0].filename;
+      user.tutorForm.lastEducationalCertificate =
+        req.files.lastEducationalCertificate[0].filename;
 
       const savedUser = await user.save().catch((err) => {
         console.log("Cannot update user at this moment", err);
@@ -121,6 +132,60 @@ const authController = {
       console.log("err", err);
     }
   },
+  studentCompleteProfile: async (req, res) => {
+    try {
+      const { gender, age, education, address } = req.body;
+      console.log("req.body", req.body);
+      console.log("req.file", req.file);
+      const loggedInUserId = req.user.id;
+      console.log(loggedInUserId);
+      console.log(gender, age, education, address);
+
+      const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
+        console.log("error", err);
+      });
+      if (!user) return res.status(404).json({ error: "User not found" });
+      user.age = age;
+      user.gender = gender;
+      user.education = education;
+      user.address = address;
+      user.profilePic = req.file.filename;
+
+      const savedUser = await user.save().catch((err) => {
+        console.log("Cannot update user at this moment", err);
+        res.status(500).json({ error: "Cannot update user at this moment" });
+      });
+      if (savedUser) {
+        console.log("Student profile completed !!");
+        res
+          .status(201)
+          .json({ message: "Student profile completed", savedUser, user });
+      }
+    } catch (err) {
+      console.log("err", err);
+    }
+  },
 };
 
 module.exports = authController;
+
+// {
+//   email:'seema1@gmail.com',
+//   role: 'tutor',
+//   subjects: ['Hindi'],
+//   title: "titile",
+//   aboutYou: "",
+//   aboutClass: "somsdsd",
+//   city:' Assam',
+//   mode: [
+//     'Online'
+//   ],
+//   language:[
+//     "English"
+//   ],
+//   rate:200,
+//   phone: '9365636140',
+//   profilePic: {},
+//   identity: {},
+//   lastEducationalCertificate: {},
+//   isProfileVerified:

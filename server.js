@@ -26,7 +26,7 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // ROUTES
 app.use("/auth", authRoutes);
@@ -35,13 +35,14 @@ app.use("/admin", adminRoutes);
 app.use("/advertise", advertiseRoutes);
 app.use("/dashboard", dashboardRoutes);
 
-// FILE STORAGE
+// // FILE STORAGE
 // const storage = multer.diskStorage({
 //     destination: function (req, file, cb) {
 //       cb(null, "public/assets")
 //     },
 //     filename: function (req, file, cb) {
-//       cb(null,file.originalname)
+//       console.log()
+//       cb(null,path.extname(file.originalname))
 //     }
 //   })
 

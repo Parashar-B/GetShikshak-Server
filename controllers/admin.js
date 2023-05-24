@@ -1,4 +1,5 @@
 const { Subject, Language, Mode } = require("../models/Advertise");
+const User = require('../models/Users');
 const adminController = {
   addSubject: async (req, res) => {
     // console.log(req.body);
@@ -13,7 +14,7 @@ const adminController = {
       );
 
       if (subjectExist) {
-        return res.status(500).json({ error: "Subject Already exist!" });
+        return res.status(409).json({ error: "Subject Already exist!" });
       }
 
       const newSubject = new Subject({
@@ -46,7 +47,7 @@ const adminController = {
       });
 
       if (modeExist) {
-        return res.status(500).json({ error: "Mode Already exist!" });
+        return res.status(409).json({ error: "Mode Already exist!" });
       }
       const newMode = new Mode({
         value: mode,
@@ -80,7 +81,7 @@ const adminController = {
       );
 
       if (languageExist) {
-        return res.status(500).json({ error: "Language Already exist!" });
+        return res.status(409).json({ error: "Language Already exist!" });
       }
 
       const newLanguage = new Language({
@@ -101,6 +102,30 @@ const adminController = {
       }
     } catch (err) {
       res.status(500).json({ error: `${err.message}` });
+    }
+  },
+  getVerificationRequest:async (req,res) =>{
+    try {
+      const tutors = await User.find({
+        $and: [
+          { role: "tutor" },
+          { "tutorForm.isProfileVerified": "pending" },
+          { isProfileCompleted: "true" },
+        ],
+      }).catch((err) => {
+        res.status(500).json({ error: err });
+      });
+      if (!tutors) {
+        res.status(500).json({ message: "No such result found" });
+      }
+      if (tutors) {
+        res
+          .status(201)
+          .json({ tutors, message: "Tutors with verification request found" });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
     }
   },
 };
