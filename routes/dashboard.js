@@ -20,7 +20,12 @@ router.patch(
 router.get("/classrequest", verifyToken, dashboardController.getClassRequest);
 
 //ADMIN DAHBOARD ROUTES
-router.get("/getadmin", verifyToken, dashboardController.getAdmin);
+router.get(
+  "/getadmin",
+  verifyToken,
+  dashboardController.getAdmin
+);
+// router.get("/getadmin", verifyToken, dashboardController.getAdmin);
 router.get(
   "/verificationrequest",
   verifyToken,
