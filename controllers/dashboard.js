@@ -10,13 +10,13 @@ const dashboardController = {
           return res.status(404).json({ error: "No user found" });
         }
       );
-      console.log(user, "user");
+      // console.log(user, "user");
       if (user) {
-        console.log("currentUser", RequestingUser);
+        // console.log("currentUser", RequestingUser);
         return res.json({ RequestingUser, user: user });
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       return res.json({ error: err });
     }
   },
@@ -42,7 +42,7 @@ const dashboardController = {
 
       return res.json(updatedUser);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Server Error" });
     }
   },
@@ -70,7 +70,7 @@ const dashboardController = {
 
       return res.json(updatedUser);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Server Error" });
     }
   },
@@ -83,19 +83,19 @@ const dashboardController = {
       })
         .populate("studentId")
         .catch((err) => {
-          console.log("Error in finding");
+          // console.log("Error in finding");
           return res.status(500).json("Server error");
         });
 
       if (classRequest) {
-        console.log("class request", classRequest);
+        // console.log("class request", classRequest);
         return res.json(classRequest);
       }
       // console.log(req.user);
       // console.log("inside getClassRequest");
       // res.json(req.user);
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       return res.json(err);
     }
   },
@@ -104,7 +104,7 @@ const dashboardController = {
       const tutors = await User.find({
         $and: [
           { role: "tutor" },
-          { "tutorForm.isProfileVerified": false },
+          { "tutorForm.isProfileVerified": "pending" },
           { isProfileCompleted: true },
         ],
       }).catch((err) => {
@@ -114,32 +114,32 @@ const dashboardController = {
         res.status(500).json({ message: "No such result found" });
       }
       if (tutors) {
-        res
+        return res
           .status(201)
           .json({ tutors, message: "Tutors with verification request found" });
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       return res.json(err);
     }
   },
   getAdmin: async (req, res) => {
     try {
       const admin = await User.find({ role: "admin" }).catch((err) => {
-        console.log("err", err);
-        res.status(500).json({ error: "Internal server error" });
+        // console.log("err", err);
+        return res.status(500).json({ error: "Internal server error" });
       });
 
       if (!admin) {
-        res.status(404).json({ message: "Admin not found" });
+        return res.status(404).json({ message: "Admin not found" });
       }
       if (admin) {
-        console.log("admin", admin);
-        res.status(201).json({ admin, message: "Admin found" });
+        // console.log("admin", admin);
+        return res.status(201).json({ admin, message: "Admin found" });
       }
     } catch (err) {
-      console.log(err);
-      res.json("error", err);
+      // console.log(err);
+      return res.json("error", err);
     }
   },
 };

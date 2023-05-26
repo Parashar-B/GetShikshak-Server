@@ -12,6 +12,7 @@ const userRoutes = require("./routes/user");
 const adminRoutes = require("./routes/admin");
 const advertiseRoutes = require("./routes/advertise");
 const dashboardRoutes = require("./routes/dashboard");
+const tutorRoutes = require("./routes/tutor");
 
 // const url = require('url')
 
@@ -34,6 +35,7 @@ app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
 app.use("/advertise", advertiseRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/tutor", tutorRoutes);
 
 // // FILE STORAGE
 // const storage = multer.diskStorage({
