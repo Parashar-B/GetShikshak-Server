@@ -1,5 +1,5 @@
 const { Subject, Language, Mode } = require("../models/Advertise");
-const User = require('../models/Users');
+const User = require("../models/Users");
 const adminController = {
   addSubject: async (req, res) => {
     // console.log(req.body);
@@ -107,7 +107,7 @@ const adminController = {
       res.status(500).json({ error: `${err.message}` });
     }
   },
-  getVerificationRequest:async (req,res) =>{
+  getVerificationRequest: async (req, res) => {
     try {
       const tutors = await User.find({
         $and: [
@@ -129,6 +129,32 @@ const adminController = {
     } catch (err) {
       console.log(err);
       return res.json(err);
+    }
+  },
+  updateVerificationRequest: async (req, res) => {
+    try {
+      const { updatedStatus, reqId } = req.body;
+      console.log(reqId, updatedStatus);
+
+      const updatedData = {
+        "tutorForm.isProfileVerified": updatedStatus,
+      };
+
+      const updatedVerificationrequest = await User.findByIdAndUpdate(
+        reqId,
+        updatedData,
+        { new: true }
+      );
+      if (!updatedVerificationrequest) {
+        return res.status(400).json({ error: "Request not found" });
+      }
+      console.log("Inside");
+      return res.json({
+        updatedVerificationrequest,
+        message: `Tutor ${updatedStatus} successfully`,
+      });
+    } catch (err) {
+      return res.json({ error: err });
     }
   },
 };

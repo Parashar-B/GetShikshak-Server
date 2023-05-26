@@ -6,9 +6,11 @@ const tutorController = require("../controllers/tutor");
 // ROUTES
 
 router.patch(
-  "/updaterequeststatus",
+  "/updatereservationrequest",
   verifyToken,
-  tutorController.updateRequestStatus
+  tutorController.updateReservationRequest
 );
+
+router.get("/getmystudents", verifyToken, tutorController.getMyStudents);
 
 module.exports = router;

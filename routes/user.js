@@ -13,6 +13,7 @@ router.get("/getstudents", userController.getStudents);
 
 router.get("/search", userController.searchTutor);
 router.get("/:id", userController.getTutorDetails);
+router.get("/fetchreviews/:id", userController.fetchReviews);
 
 router.post("/test", verifyToken, (req, res) => {
   try {

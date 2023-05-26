@@ -15,6 +15,7 @@ const ReserveClassSchema = new mongoose.Schema(
     subjects: { type: Array, require: true },
     mode: { type: Array },
     rating: { type: Number },
+    review: { type: String },
   },
   { timestamps: true }
 );
