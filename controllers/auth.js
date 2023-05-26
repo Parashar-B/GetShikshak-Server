@@ -17,6 +17,7 @@ const authController = {
 
       const userExists = await User.exists({ email: email }).catch((err) => {
         console.log("User exist error", err);
+        return res.json({ error: "User exist error" });
       });
 
       if (userExists) {
@@ -32,17 +33,19 @@ const authController = {
         name,
       });
       const savedUser = await newUser.save().catch((err) => {
-        console.log("Cannot register user at this moment", err);
-        res.status(500).json({ error: "Cannot register user at this moment" });
+        // console.log("Cannot register user at this moment", err);
+        return res
+          .status(500)
+          .json({ error: "Cannot register user at this moment" });
       });
       if (savedUser) {
-        console.log("User registered successfully !!");
-        res
+        // console.log("User registered successfully !!");
+        return res
           .status(201)
           .json({ message: "Registration successfull! Login here !" });
       }
     } catch (err) {
-      res.status(500).json({ error: `${err.message}` });
+      return res.status(500).json({ error: `${err.message}` });
     }
   },
   login: async (req, res) => {
@@ -50,12 +53,13 @@ const authController = {
       const { email, password } = req.body;
 
       const user = await User.findOne({ email: email }).catch((err) => {
-        console.log("error", err);
+        // console.log("error", err);
+        return res.status(500).json({ error: err });
       });
       if (!user) return res.status(500).json({ error: "User don't exist" });
 
       await bcrypt.compare(password, user.password).catch((err) => {
-        console.log("Password is invalid");
+        // console.log("Password is invalid");
         return res.status(403).json({ error: "Invalid credentials" });
       });
       const ParsedData = JSON.parse(JSON.stringify(user));
@@ -69,21 +73,21 @@ const authController = {
         process.env.JWT_SECRET_KEY
       );
 
-      res
+      return res
         .status(201)
         .json({ token, user: restParams, message: "Login successfull" });
     } catch (err) {
-      res.status(403).json({ error: err.message });
+      return res.status(403).json({ error: err.message });
     }
   },
   tutorRegister: async (req, res) => {
     try {
-      console.log("req.body", req.body);
-      console.log("req.files", req.files);
-      console.log(
-        "req.files.profilePic.originalname",
-        req.files.profilePic[0].originalname
-      );
+      // console.log("req.body", req.body);
+      // console.log("req.files", req.files);
+      // console.log(
+      //   "req.files.profilePic.originalname",
+      //   req.files.profilePic[0].originalname
+      // );
 
       const {
         subjects,
@@ -99,7 +103,8 @@ const authController = {
       } = req.body;
       const loggedInUserId = req.user.id;
       const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
-        console.log("error", err);
+        // console.log("error", err);
+        return res.status(500).json({ error: err });
       });
       if (!user) return res.status(404).json({ error: "User not found" });
       user.tutorForm.subjects = subjects;
@@ -110,7 +115,7 @@ const authController = {
       user.tutorForm.mode = mode;
       user.tutorForm.language = language;
       user.tutorForm.rate = rate;
-      user.tutorForm.phone = phone;
+      user.phone = phone;
       user.isProfileCompleted = isProfileCompleted;
       user.profilePic = req.files.profilePic[0].filename;
       user.tutorForm.identity = req.files.identity[0].filename;
@@ -118,31 +123,36 @@ const authController = {
         req.files.lastEducationalCertificate[0].filename;
 
       const savedUser = await user.save().catch((err) => {
-        console.log("Cannot update user at this moment", err);
-        res.status(500).json({ error: "Cannot update user at this moment" });
+        // console.log("Cannot update user at this moment", err);
+        return res
+          .status(500)
+          .json({ error: "Cannot update user at this moment" });
       });
 
       if (savedUser) {
-        console.log("Tutor registered successfully !!");
-        res
+        // console.log("Tutor registered successfully !!");
+        return res
           .status(201)
           .json({ message: "Tutor registration successful", savedUser, user });
       }
     } catch (err) {
-      console.log("err", err);
+      // console.log("err", err);
+      return res.status(500).json({ error: err });
     }
   },
   studentCompleteProfile: async (req, res) => {
     try {
-      const { gender, age, education, address } = req.body;
-      console.log("req.body", req.body);
-      console.log("req.file", req.file);
+      const { gender, age, education, address, phone, isProfileCompleted } =
+        req.body;
+      // console.log("req.body", req.body);
+      // console.log("req.file", req.file);
       const loggedInUserId = req.user.id;
-      console.log(loggedInUserId);
-      console.log(gender, age, education, address);
+      // console.log(loggedInUserId);
+      // console.log(gender, age, education, address);
 
       const user = await User.findOne({ _id: loggedInUserId }).catch((err) => {
         console.log("error", err);
+        return res.status(500).json({ error: err });
       });
       if (!user) return res.status(404).json({ error: "User not found" });
       user.age = age;
@@ -150,19 +160,24 @@ const authController = {
       user.education = education;
       user.address = address;
       user.profilePic = req.file.filename;
+      user.phone = phone;
+      user.isProfileCompleted = isProfileCompleted;
 
       const savedUser = await user.save().catch((err) => {
-        console.log("Cannot update user at this moment", err);
-        res.status(500).json({ error: "Cannot update user at this moment" });
+        // console.log("Cannot update user at this moment", err);
+        return res
+          .status(500)
+          .json({ error: "Cannot update user at this moment" });
       });
       if (savedUser) {
-        console.log("Student profile completed !!");
-        res
+        // console.log("Student profile completed !!");
+        return res
           .status(201)
           .json({ message: "Student profile completed", savedUser, user });
       }
     } catch (err) {
-      console.log("err", err);
+      // console.log("err", err);
+      return res.status(500).json({ error: err });
     }
   },
 };

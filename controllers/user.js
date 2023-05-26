@@ -10,7 +10,10 @@ const userController = {
       if (tutors.length > 0) {
         // console.log(tutors);
         const filteredTutors = tutors.filter((tutor) => {
-          return tutor.isProfileCompleted === true;
+          return (
+            tutor.isProfileCompleted === true &&
+            tutor.tutorForm.isProfileVerified === "accepted"
+          );
         });
         // console.log("filtered", filteredTutors);
         return res.json({ message: "Tutors found", filteredTutors });
@@ -72,12 +75,14 @@ const userController = {
       const searchedUser = await User.find(filter).catch((err) => {
         res.status(500).json({ error: err, message: "Search error" });
       });
+
       // console.log(searchedUser, "user");
       if (searchedUser.length > 0) {
         res.status(200).json({ searchedUser });
       } else res.json({ error: "No data related to search option" });
     } catch (err) {
-      console.log(err);
+      // console.log(err);
+      return res.status(500).json({ error: err });
     }
   },
   getTutorDetails: async (req, res) => {
@@ -93,13 +98,14 @@ const userController = {
         return res.status(200).json({ user });
       }
     } catch (err) {
-      console.log("errors", err);
+      // console.log("errors", err);
+      return res.status(500).json({ error: err });
     }
   },
   reserveClass: async (req, res) => {
     try {
-      console.log("tutorId", req.params.id);
-      console.log("studentId", req.user.id);
+      // console.log("tutorId", req.params.id);
+      // console.log("studentId", req.user.id);
       const tutorId = req.params.id;
       const studentId = req.user.id;
 
@@ -123,10 +129,11 @@ const userController = {
           { subjects: { $in: subjects } },
         ],
       }).catch((err) => {
-        console.log(err, err);
+        // console.log(err, err);
+        return res.status(500).json({ error: err });
       });
 
-      console.log("existing doc", existingDocument);
+      // console.log("existing doc", existingDocument);
 
       // const existingDocument = await ReserveClass.find({
       //   studentId: studentId,
@@ -155,12 +162,12 @@ const userController = {
       });
 
       const savedReservation = await newReservation.save().catch((err) => {
-        console.log("Cannot reserve the class");
+        // console.log("Cannot reserve the class");
         return res.status(500).json({ message: "Cannot reserve the class" });
       });
 
       if (savedReservation) {
-        console.log("Reservation request sent");
+        // console.log("Reservation request sent");
         if (savedReservation) {
           // Send email to the tutor
           const transporter = nodemailer.createTransport({
@@ -193,7 +200,9 @@ const userController = {
 
           transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-              console.error(error);
+              // console.error(error);
+              return res.status(500).json({ error: err });
+
               // Handle error sending the email
             } else {
               console.log(
@@ -204,16 +213,45 @@ const userController = {
             }
           });
 
-          console.log("Reservation request sent");
+          // console.log("Reservation request sent");
           return res.status(201).json({ message: "Reservation request sent!" });
         }
       }
       // console.log("req", req.user);
-      console.log("inside");
+      // console.log("inside");
     } catch (err) {
-      console.log("error", err);
+      // console.log("error", err);
+      return res.status(500).json({ error: err });
     }
   },
+  giveFeedback: async (req,res)=>{
+    try{
+      const classId= req.params.id;
+      const {rating, review} = req.body;
+      console.log("classId ",classId);
+      console.log("Review =>",review," Rating =>",rating);
+      const updatedData = {
+        review: review,
+        rating: rating,
+        
+      }
+      const classData = await ReserveClass.findByIdAndUpdate(
+        classId,
+        updatedData,
+        {new:true}
+      )
+      if(!classData){
+        return res.json({message:"Feedback Error"});
+      }
+      if(classData){
+        return res.json({message:"Feedback Given Successfully",classData});
+      }
+    }
+    catch(err){
+      console.log("error", err);
+      return res.json({error: err})
+    }
+  }
 };
 
 module.exports = userController;
