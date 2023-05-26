@@ -61,7 +61,7 @@ const UserSchema = new mongoose.Schema(
     },
     isProfileCompleted: { type: Boolean, default: "false" },
     profilePic: { type: String },
-    rating: { type: mongoose.Schema.Types.Number },
+    avgRating: { type: mongoose.Schema.Types.Number },
     isAccountActive: { type: String, default: true },
     education: { type: String },
   },
