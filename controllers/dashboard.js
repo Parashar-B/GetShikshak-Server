@@ -49,9 +49,6 @@ const dashboardController = {
 
   updateAboutClass: async (req, res) => {
     try {
-      // console.log("Body ",req.body);
-
-      // return res.json(req.body)
       const { newData } = req.body;
       //console.log("About Class ",newData);
       const RequestingUser = req.user;
@@ -74,26 +71,59 @@ const dashboardController = {
       return res.status(500).json({ error: "Server Error" });
     }
   },
+  updateTitle: async (req, res) => {
+    try {
+      const { newData } = req.body;
+      //console.log("About Class ",newData);
+      const RequestingUser = req.user;
+      const updatedData = {
+        "tutorForm.title": newData,
+      };
+      const updatedUser = await User.findByIdAndUpdate(
+        RequestingUser.id,
+        updatedData,
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(400).json({ error: "User not found" });
+      }
+
+      return res.json(updatedUser);
+    } catch (error) {
+      // console.log(error);
+      return res.status(500).json({ error: "Server Error" });
+    }
+  },
 
   getClassRequest: async (req, res) => {
     try {
-      const tutorId = req.user.id;
-      const classRequest = await ReserveClass.find({
-        $and: [{ tutorId: tutorId }, { isAccepted: "pending" }],
-      })
-        .populate("studentId")
-        .catch((err) => {
-          // console.log("Error in finding");
-          return res.status(500).json("Server error");
-        });
+      const RequestingUserId = req.user.id;
+      let classRequest;
+      if (req.user.role === "tutor") {
+        classRequest = await ReserveClass.find({
+          $and: [{ tutorId: RequestingUserId }, { isAccepted: "pending" }],
+        })
+          .populate("studentId")
+          .catch((err) => {
+            // console.log("Error in finding");
+            return res.status(500).json("Server error");
+          });
+      } else {
+        classRequest = await ReserveClass.find({
+          studentId: RequestingUserId,
+        })
+          .populate("tutorId")
+          .catch((err) => {
+            // console.log("Error in finding");
+            return res.status(500).json({ error: err });
+          });
+      }
 
       if (classRequest) {
         // console.log("class request", classRequest);
         return res.json(classRequest);
       }
-      // console.log(req.user);
-      // console.log("inside getClassRequest");
-      // res.json(req.user);
     } catch (err) {
       // console.log(err);
       return res.json(err);
@@ -140,6 +170,35 @@ const dashboardController = {
     } catch (err) {
       // console.log(err);
       return res.json("error", err);
+    }
+  },
+  updateActiveStatus: async (req, res) => {
+    try {
+      const RequestingUserId = req.user.id;
+      const { updatedStatus } = req.body;
+      console.log("updated STtau", updatedStatus);
+      console.log("requesting", RequestingUserId);
+      const updatedData = {
+        isAccountActive: updatedStatus,
+      };
+      const updatedUser = await User.findByIdAndUpdate(
+        RequestingUserId,
+        updatedData,
+        { new: true }
+      ).catch((err) => {
+        console.log("erre", err);
+        return res.status(500).json({ error: "Internal server error" });
+      });
+
+      if (!updatedUser) {
+        return res.status(400).json({ error: "Request not found" });
+      }
+      return res.status(201).json({
+        updatedUser,
+        message: `Tutor status updated successfully`,
+      });
+    } catch (err) {
+      return res.json({ error: err });
     }
   },
 };

@@ -4,16 +4,30 @@ const nodemailer = require("nodemailer");
 const userController = {
   getTutors: async (req, res) => {
     try {
-      const tutors = await User.find({ role: "tutor" }).catch((err) => {
+      const tutors = await User.find({
+        $and: [
+          { role: "tutor" },
+          { isProfileCompleted: true },
+          { "tutorForm.isProfileVerified": "accepted" },
+        ],
+      }).catch((err) => {
         return res.json({ error: "Cannot complete the request" });
       });
       if (tutors.length > 0) {
         // console.log(tutors);
-        const filteredTutors = tutors.filter((tutor) => {
-          return (
-            tutor.isProfileCompleted === true &&
-            tutor.tutorForm.isProfileVerified === "accepted"
-          );
+        const filteredTutors = tutors.map((tutor) => {
+          return {
+            profilePic: tutor.profilePic,
+            id: tutor._id,
+            name: tutor.name,
+            email: tutor.email,
+            phone: tutor.phone,
+            rating: tutor.rating,
+            subjects: tutor.tutorForm.subjects,
+            rate: tutor.tutorForm.rate,
+            city: tutor.tutorForm.city,
+            "account-status": tutor.isAccountActive,
+          };
         });
         // console.log("filtered", filteredTutors);
         return res.json({ message: "Tutors found", filteredTutors });
@@ -31,13 +45,13 @@ const userController = {
       if (students.length > 0) {
         filteredStudents = students.map((student) => {
           return {
+            profilePic: student.profilePic,
             name: student.name,
             email: student.email,
             gender: student.gender,
             age: student.age,
-            profilePic: student.profilePic,
             address: student.address,
-            isAccounActive: student.isAccountActive,
+            ["account status"]: student.isAccountActive,
           };
         });
         // console.log(students);
@@ -55,22 +69,26 @@ const userController = {
       if (!subject && !city) {
         filter.role = "tutor";
         filter.isProfileCompleted = true;
+        filter["tutorForm.isProfileVerified"] = "accepted";
       }
       if (subject) {
         filter["tutorForm.subjects"] = { $regex: `${subject}`, $options: "i" };
         filter.role = "tutor";
         filter.isProfileCompleted = true;
+        filter["tutorForm.isProfileVerified"] = "accepted";
       }
       if (city) {
         filter["tutorForm.city"] = { $regex: `${city}`, $options: "i" };
         filter.role = "tutor";
         filter.isProfileCompleted = true;
+        filter["tutorForm.isProfileVerified"] = "accepted";
       }
       if (subject && city) {
         filter["tutorForm.subjects"] = { $regex: `${subject}`, $options: "i" };
         filter["tutorForm.city"] = { $regex: `${city}`, $options: "i" };
         filter.role = "tutor";
         filter.isProfileCompleted = true;
+        filter["tutorForm.isProfileVerified"] = "accepted";
       }
       const searchedUser = await User.find(filter).catch((err) => {
         res.status(500).json({ error: err, message: "Search error" });
@@ -104,8 +122,8 @@ const userController = {
   },
   reserveClass: async (req, res) => {
     try {
-      // console.log("tutorId", req.params.id);
-      // console.log("studentId", req.user.id);
+      console.log("tutorId", req.params.id);
+      console.log("studentId", req.user.id);
       const tutorId = req.params.id;
       const studentId = req.user.id;
 
@@ -119,8 +137,7 @@ const userController = {
       if (!student) {
         return res.status(404).json("No student with particular id");
       }
-      const { intro, subjects, mode, phone } = req.body;
-      // console.log("params", params);
+      const { intro, subjects, mode, phone, address } = req.body;
 
       const existingDocument = await ReserveClass.find({
         $and: [
@@ -153,6 +170,7 @@ const userController = {
           .json({ error: "You have already requested for the same" });
       }
       const newReservation = new ReserveClass({
+        address: address,
         intro: intro,
         subjects: subjects,
         mode: mode,
@@ -166,21 +184,20 @@ const userController = {
         return res.status(500).json({ message: "Cannot reserve the class" });
       });
 
+      // console.log("Reservation request sent");
       if (savedReservation) {
-        // console.log("Reservation request sent");
-        if (savedReservation) {
-          // Send email to the tutor
-          const transporter = nodemailer.createTransport({
-            // Configure your email service provider here
-            service: "Gmail",
-            auth: {
-              user: "rachnaag1999@gmail.com",
-              pass: process.env.GMAILPW,
-            },
-            port: 587, // Alternate port number
-            secure: false, // Set secure to false if using port 587
-          });
-          const emailContent = `
+        // Send email to the tutor
+        const transporter = nodemailer.createTransport({
+          // Configure your email service provider here
+          service: "Gmail",
+          auth: {
+            user: "rachnaag1999@gmail.com",
+            pass: process.env.GMAILPW,
+          },
+          port: 587, // Alternate port number
+          secure: false, // Set secure to false if using port 587
+        });
+        const emailContent = `
             <h1>New Class Request</h1>
             <p>Student Name: ${student.name}</p>
             <p>Student Email: ${student.email}</p>
@@ -191,37 +208,87 @@ const userController = {
             <p>Phone: ${phone}</p>
           `;
 
-          const mailOptions = {
-            from: process.env.WEB_EMAIL, // Your email address
-            to: tutor.email, // Tutor's email address
-            subject: "New Class Request From GetShiksha",
-            html: emailContent,
-          };
+        const mailOptions = {
+          from: process.env.WEB_EMAIL, // Your email address
+          to: tutor.email, // Tutor's email address
+          subject: "New Class Request From GetShiksha",
+          html: emailContent,
+        };
 
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              // console.error(error);
-              return res.status(500).json({ error: err });
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            // console.error(error);
+            return res.status(500).json({ error: err });
 
-              // Handle error sending the email
-            } else {
-              console.log(
-                `Email sent: from ${process.env.WEB_EMAIL} to ${tutor.email}`,
-                info.response
-              );
-              // Handle successful email sending
-            }
-          });
+            // Handle error sending the email
+          } else {
+            console.log(
+              `Email sent: from ${process.env.WEB_EMAIL} to ${tutor.email}`,
+              info.response
+            );
+            // Handle successful email sending
+          }
+        });
 
-          // console.log("Reservation request sent");
-          return res.status(201).json({ message: "Reservation request sent!" });
-        }
+        // console.log("Reservation request sent");
+        return res.status(201).json({ message: "Reservation request sent!" });
       }
+
       // console.log("req", req.user);
       // console.log("inside");
     } catch (err) {
-      // console.log("error", err);
+      console.log("error inside catch", err);
       return res.status(500).json({ error: err });
+    }
+  },
+  giveFeedback: async (req, res) => {
+    try {
+      const classId = req.params.id;
+      const { rating, review } = req.body;
+      console.log("classId ", classId);
+      console.log("Review =>", review, " Rating =>", rating);
+      const updatedData = {
+        review: review,
+        rating: rating,
+      };
+      const classData = await ReserveClass.findByIdAndUpdate(
+        classId,
+        updatedData,
+        { new: true }
+      );
+      if (!classData) {
+        return res.json({ message: "Feedback Error" });
+      }
+      if (classData) {
+        return res.json({ message: "Feedback Given Successfully", classData });
+      }
+    } catch (err) {
+      console.log("error", err);
+      return res.json({ error: err });
+    }
+  },
+  fetchReviews: async (req, res) => {
+    try {
+      const tutorId = req.params.id;
+      // console.log("tuor", req.params.id);
+      const reviews = await ReserveClass.find({
+        $and: [
+          { tutorId: tutorId },
+          { rating: { $exists: true } },
+          { review: { $exists: true } },
+          { isAccepted: "accepted" },
+        ],
+      }).catch((err) => {
+        return res.json({ error: err });
+      });
+      if (!reviews) {
+        return res.json({ message: "No reviews" });
+      }
+      if (reviews) {
+        return res.json({ reviews });
+      }
+    } catch (err) {
+      return res.json({ error: err });
     }
   },
 };
