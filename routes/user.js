@@ -30,4 +30,9 @@ router.post("/test", verifyToken, (req, res) => {
 });
 
 router.post("/reserveclass/:id", verifyToken, userController.reserveClass);
+router.patch("/givefeedback/:id",verifyToken,userController.giveFeedback);
+
+
 module.exports = router;
+
+
