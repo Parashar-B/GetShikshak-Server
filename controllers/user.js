@@ -241,34 +241,32 @@ const userController = {
       return res.status(500).json({ error: err });
     }
   },
-  giveFeedback: async (req,res)=>{
-    try{
-      const classId= req.params.id;
-      const {rating, review} = req.body;
-      console.log("classId ",classId);
-      console.log("Review =>",review," Rating =>",rating);
+  giveFeedback: async (req, res) => {
+    try {
+      const classId = req.params.id;
+      const { rating, review } = req.body;
+      console.log("classId ", classId);
+      console.log("Review =>", review, " Rating =>", rating);
       const updatedData = {
         review: review,
         rating: rating,
-        
-      }
+      };
       const classData = await ReserveClass.findByIdAndUpdate(
         classId,
         updatedData,
-        {new:true}
-      )
-      if(!classData){
-        return res.json({message:"Feedback Error"});
+        { new: true }
+      );
+      if (!classData) {
+        return res.json({ message: "Feedback Error" });
       }
-      if(classData){
-        return res.json({message:"Feedback Given Successfully",classData});
+      if (classData) {
+        return res.json({ message: "Feedback Given Successfully", classData });
       }
-    }
-    catch(err){
+    } catch (err) {
       console.log("error", err);
-      return res.json({error: err})
+      return res.json({ error: err });
     }
-  }
+  },
   fetchReviews: async (req, res) => {
     try {
       const tutorId = req.params.id;
